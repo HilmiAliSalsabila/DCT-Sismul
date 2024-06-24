@@ -1,0 +1,24 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+h1,
+h2 {
+  text-align: center;
+}
+
+div {
+  margin: 20px;
+  text-align: center;
+}
+
+button {
+  margin-top: 10px;
+}
+
+img,
+video,
+audio {
+  margin-top: 20px;
+  max-width: 100%;
+}

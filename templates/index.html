@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image, Video, and Audio Compression</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="mt-5">Image, Video, and Audio Compression</h1>
+
+      <div class="mt-5">
+        <h2>Upload Image</h2>
+        <div class="input-group mb-3">
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" id="imageInput" />
+            <label class="custom-file-label" for="imageInput">Choose file</label>
+          </div>
+          <div class="input-group-append">
+            <button class="btn btn-primary" type="button" onclick="uploadImage()">Compress Image</button>
+          </div>
+        </div>
+        <p id="imageSizes"></p>
+        <button id="downloadImage" class="btn btn-success" style="display: none" onclick="downloadFile('image')">Download Compressed Image</button>
+        <img id="compressedImage" class="img-fluid mt-3" alt="Compressed Image" style="display: none" />
+      </div>
+
+      <div class="mt-5">
+        <h2>Upload Video</h2>
+        <div class="input-group mb-3">
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" id="videoInput" />
+            <label class="custom-file-label" for="videoInput">Choose file</label>
+          </div>
+          <div class="input-group-append">
+            <button class="btn btn-primary" type="button" onclick="uploadVideo()">Compress Video</button>
+          </div>
+        </div>
+        <p id="videoSizes"></p>
+        <button id="downloadVideo" class="btn btn-success" style="display: none" onclick="downloadFile('video')">Download Compressed Video</button>
+        <video id="compressedVideo" class="img-fluid mt-3" controls style="display: none"></video>
+      </div>
+
+      <div class="mt-5">
+        <h2>Upload Audio</h2>
+        <div class="input-group mb-3">
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" id="audioInput" />
+            <label class="custom-file-label" for="audioInput">Choose file</label>
+          </div>
+          <div class="input-group-append">
+            <button class="btn btn-primary" type="button" onclick="uploadAudio()">Compress Audio</button>
+          </div>
+        </div>
+        <p id="audioSizes"></p>
+        <button id="downloadAudio" class="btn btn-success" style="display: none" onclick="downloadFile('audio')">Download Compressed Audio</button>
+        <audio id="compressedAudio" class="mt-3" controls style="display: none"></audio>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Custom script -->
+    <script src="/static/js/scripts.js"></script>
+  </body>
+</html>

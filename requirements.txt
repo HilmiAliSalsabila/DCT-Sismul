@@ -5,3 +5,4 @@ Pillow
 moviepy
 pydub
 scipy
+gunicorn

@@ -81,18 +81,30 @@ function uploadAudio() {
 }
 
 function downloadFile(fileType) {
+  let sourceElement, fileExtension;
+
+  if (fileType === 'image') {
+    sourceElement = document.getElementById('compressedImage');
+    fileExtension = '.jpg';
+  } else if (fileType === 'video') {
+    sourceElement = document.getElementById('compressedVideo');
+    fileExtension = '.mp4';
+  } else if (fileType === 'audio') {
+    sourceElement = document.getElementById('compressedAudio');
+    fileExtension = '.mp3';
+  }
+
+  if (!sourceElement) {
+    console.error('Invalid file type:', fileType);
+    return;
+  }
+
   fetch('/download/' + fileType, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(
-      fileType === 'image'
-        ? { compressed_image: document.getElementById('compressedImage').src.split(',')[1] }
-        : fileType === 'video'
-        ? { compressed_path: document.getElementById('compressedVideo').src }
-        : { compressed_path: document.getElementById('compressedAudio').src }
-    ),
+    body: JSON.stringify(fileType === 'image' ? { compressed_image: sourceElement.src.split(',')[1] } : fileType === 'video' ? { compressed_path: sourceElement.src } : { compressed_path: sourceElement.src }),
   })
     .then((response) => response.blob())
     .then((blob) => {
@@ -100,7 +112,7 @@ function downloadFile(fileType) {
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = 'compressed_' + fileType + (fileType === 'image' ? '.jpg' : fileType === 'video' ? '.mp4' : '.mp3');
+      a.download = 'compressed_' + fileType + fileExtension;
       document.body.appendChild(a);
       a.click();
       URL.revokeObjectURL(url);

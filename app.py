@@ -10,6 +10,7 @@ from pydub import AudioSegment
 from pydub.exceptions import PydubException
 from scipy.fftpack import dct, idct
 from scipy.io import wavfile
+import base64
 
 
 app = Flask(__name__)
@@ -18,6 +19,10 @@ app.config['UPLOAD_FOLDER'] = 'uploads'  # Menetapkan direktori unggahan
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  #
 # Set path ffmpeg secara eksplisit
 AudioSegment.converter = "C:ffmpeg/bin/ffmpeg.exe"  # Ganti dengan lokasi ffmpeg yang sesuai
+
+# Fungsi untuk menghitung ukuran file dalam format yang lebih mudah dibaca
+def calculate_size(file_path):
+    return os.path.getsize(file_path)
 
 def compress_image(image):
     image = np.array(image.convert('L'))
@@ -133,18 +138,63 @@ def upload_video():
 
 @app.route('/upload_audio', methods=['POST'])
 def upload_audio():
-    if 'file' not in request.files:
-        return redirect(request.url)
-    
-    file = request.files['file']
-    if file.filename == '':
-        return redirect(request.url)
-    
-    if file:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(file_path)
-        compressed_file_path = dct_compress_audio(file_path)
-        return send_file(compressed_file_path, as_attachment=True)
+    try:
+        # Simpan file audio yang diunggah sementara
+        uploaded_file = request.files['file']
+        uploaded_file.save('temp.wav')
+
+        # Kompresi file audio menggunakan DCT
+        compressed_file_path = dct_compress_audio('temp.wav')
+
+        if compressed_file_path:
+            # Hitung ukuran file asli dan file yang dikompresi
+            original_size = calculate_size('temp.wav')
+            compressed_size = calculate_size(compressed_file_path)
+
+            # Konversi file yang dikompresi ke base64 untuk dikirimkan ke klien
+            with open(compressed_file_path, 'rb') as file:
+                compressed_audio_data = file.read()
+                compressed_audio_base64 = base64.b64encode(compressed_audio_data).decode('utf-8')
+
+            # Hapus file sementara
+            os.remove('temp.wav')
+            os.remove(compressed_file_path)
+
+            # Kirim respons ke klien dengan ukuran file dan data audio yang dikompresi
+            return jsonify({
+                'original_size': original_size,
+                'compressed_size': compressed_size,
+                'compressed_audio': compressed_audio_base64
+            })
+
+        else:
+            return jsonify({'error': 'Failed to compress audio'}), 500
+
+    except Exception as e:
+        print(f"Error in upload_audio: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+# Endpoint untuk mendownload file audio yang dikompresi
+@app.route('/download/audio', methods=['POST'])
+def download_audio():
+    try:
+        data = request.get_json()
+
+        if 'compressed_audio' in data:
+            # Dekode base64 dan simpan ke file sementara
+            compressed_audio_data = base64.b64decode(data['compressed_audio'])
+            with open('compressed_audio.mp3', 'wb') as file:
+                file.write(compressed_audio_data)
+
+            # Kirim file yang diunduh ke klien
+            return send_file('compressed_audio.mp3', as_attachment=True)
+
+        else:
+            return jsonify({'error': 'Invalid request'}), 400
+
+    except Exception as e:
+        print(f"Error in download_audio: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/download/<file_type>', methods=['POST'])
 def download(file_type):
